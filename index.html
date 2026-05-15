@@ -1,0 +1,2190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinShield AI — Automated Compliance & Reconciliation Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --midnight: #050C1A;
+    --navy: #0A1628;
+    --steel: #0F2040;
+    --accent: #00E5A0;
+    --accent2: #0090FF;
+    --amber: #FFB800;
+    --danger: #FF4B4B;
+    --muted: #8899BB;
+    --text: #E8EEF8;
+    --border: rgba(0,229,160,0.12);
+    --card: rgba(15,32,64,0.7);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--midnight);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ─── NOISE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ─── GRID BG ─── */
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 60px;
+    background: rgba(5,12,26,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .logo span { color: var(--accent); }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--text); }
+
+  .nav-cta {
+    background: var(--accent);
+    color: var(--midnight) !important;
+    padding: 10px 22px;
+    border-radius: 6px;
+    font-weight: 700 !important;
+    letter-spacing: 0.3px;
+  }
+
+  .nav-cta:hover { background: #00c989 !important; color: var(--midnight) !important; }
+
+  /* ─── HERO ─── */
+  #hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 140px 60px 80px;
+    overflow: hidden;
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 800px; height: 800px;
+    background: radial-gradient(circle, rgba(0,229,160,0.08) 0%, transparent 70%);
+    top: -200px; right: -200px;
+    pointer-events: none;
+  }
+
+  .hero-glow2 {
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,144,255,0.06) 0%, transparent 70%);
+    bottom: -100px; left: -100px;
+    pointer-events: none;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,229,160,0.08);
+    border: 1px solid rgba(0,229,160,0.25);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .badge-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.4); }
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(44px, 6vw, 76px);
+    line-height: 1.05;
+    letter-spacing: -1px;
+    color: var(--text);
+    margin-bottom: 24px;
+    animation: fadeUp 0.7s 0.1s ease both;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-desc {
+    font-size: 18px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 44px;
+    max-width: 560px;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    animation: fadeUp 0.7s 0.3s ease both;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--midnight);
+    padding: 16px 32px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    font-family: 'Syne', sans-serif;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+  }
+
+  .btn-primary:hover {
+    background: #00c989;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0,229,160,0.25);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text);
+    padding: 16px 32px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    font-family: 'Syne', sans-serif;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.12);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+  }
+
+  .btn-ghost:hover {
+    border-color: rgba(255,255,255,0.3);
+    transform: translateY(-2px);
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 48px;
+    margin-top: 64px;
+    padding-top: 48px;
+    border-top: 1px solid var(--border);
+    animation: fadeUp 0.7s 0.4s ease both;
+  }
+
+  .stat-item { }
+
+  .stat-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  /* ─── HERO VISUAL ─── */
+  .hero-visual {
+    position: absolute;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 520px;
+    z-index: 2;
+    animation: fadeUp 0.9s 0.2s ease both;
+  }
+
+  .dashboard-card {
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .dash-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .alert-badge {
+    background: rgba(255,75,75,0.15);
+    border: 1px solid rgba(255,75,75,0.3);
+    color: var(--danger);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 100px;
+    letter-spacing: 0.5px;
+  }
+
+  .alert-badge.green {
+    background: rgba(0,229,160,0.1);
+    border-color: rgba(0,229,160,0.25);
+    color: var(--accent);
+  }
+
+  .reconcile-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 13px;
+  }
+
+  .reconcile-row:last-child { border-bottom: none; }
+
+  .vendor-name { color: var(--text); font-weight: 500; }
+  .vendor-amount { font-family: 'JetBrains Mono', monospace; color: var(--muted); }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+  }
+
+  .status-dot.match { background: var(--accent); }
+  .status-dot.mismatch { background: var(--danger); }
+  .status-dot.pending { background: var(--amber); }
+
+  .mini-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 48px;
+    margin-top: 16px;
+  }
+
+  .bar {
+    flex: 1;
+    border-radius: 3px 3px 0 0;
+    transition: opacity 0.2s;
+  }
+
+  .bar:hover { opacity: 0.7; }
+
+  .metric-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .metric-box {
+    flex: 1;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    padding: 14px;
+  }
+
+  .metric-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .metric-sub {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .metric-num.red { color: var(--danger); }
+  .metric-num.green { color: var(--accent); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── SECTIONS ─── */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 100px 60px;
+  }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(32px, 4vw, 52px);
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  .section-desc {
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1.7;
+    max-width: 600px;
+  }
+
+  /* ─── PAIN SECTION ─── */
+  #pain {
+    background: var(--navy);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pain-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    margin-top: 60px;
+  }
+
+  .pain-items { display: flex; flex-direction: column; gap: 24px; }
+
+  .pain-item {
+    display: flex;
+    gap: 20px;
+    padding: 24px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: border-color 0.2s;
+  }
+
+  .pain-item:hover { border-color: rgba(0,229,160,0.3); }
+
+  .pain-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .pain-icon.red { background: rgba(255,75,75,0.1); }
+  .pain-icon.amber { background: rgba(255,184,0,0.1); }
+  .pain-icon.blue { background: rgba(0,144,255,0.1); }
+
+  .pain-text h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .pain-text p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  .cost-display {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px;
+    text-align: center;
+  }
+
+  .cost-amount {
+    font-family: 'DM Serif Display', serif;
+    font-size: 72px;
+    color: var(--danger);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .cost-label {
+    font-size: 16px;
+    color: var(--muted);
+    margin-bottom: 32px;
+  }
+
+  .cost-breakdown { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+
+  .cost-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cost-line:last-child { border-bottom: none; }
+  .cost-line span:last-child { color: var(--danger); font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+
+  /* ─── TOOLS ─── */
+  #tools {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 100px 60px;
+  }
+
+  .tools-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 60px;
+  }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .tool-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tool-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+
+  .tool-card:hover {
+    border-color: rgba(0,229,160,0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  .tool-card:hover::before { transform: scaleX(1); }
+
+  .tool-icon {
+    width: 52px; height: 52px;
+    border-radius: 12px;
+    background: rgba(0,229,160,0.08);
+    border: 1px solid rgba(0,229,160,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  .tool-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .tool-card p {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .tool-link {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.5px;
+  }
+
+  .tool-link:hover { gap: 10px; }
+
+  /* ─── CALCULATOR MODAL ─── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5,12,26,0.95);
+    backdrop-filter: blur(20px);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: var(--steel);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 44px;
+    width: 100%;
+    max-width: 640px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 20px; right: 20px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    color: var(--text);
+    width: 36px; height: 36px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .modal-close:hover { background: rgba(255,75,75,0.15); border-color: rgba(255,75,75,0.3); color: var(--danger); }
+
+  .modal h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+
+  .modal p.modal-desc {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
+  }
+
+  .form-group input, .form-group select {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .form-group input:focus, .form-group select:focus {
+    border-color: var(--accent);
+  }
+
+  .form-group select option { background: var(--steel); }
+
+  .calc-result {
+    background: rgba(0,229,160,0.06);
+    border: 1px solid rgba(0,229,160,0.2);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 24px;
+    display: none;
+  }
+
+  .calc-result.show { display: block; }
+
+  .result-rows { display: flex; flex-direction: column; gap: 12px; }
+
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(0,229,160,0.1);
+  }
+
+  .result-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .result-row .label { color: var(--muted); }
+  .result-row .value { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+  .result-row .value.accent { color: var(--accent); font-size: 18px; }
+  .result-row .value.danger { color: var(--danger); }
+  .result-row .value.amber { color: var(--amber); }
+
+  /* ─── AI FEATURES ─── */
+  #ai {
+    background: var(--navy);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ai-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    margin-top: 60px;
+  }
+
+  .ai-features { display: flex; flex-direction: column; gap: 32px; }
+
+  .ai-feature {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  .ai-num {
+    width: 36px; height: 36px;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.2);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .ai-feature h4 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .ai-feature p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  .ai-demo {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .ai-demo-header {
+    background: rgba(0,229,160,0.06);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  .ai-demo-body { padding: 24px; }
+
+  .ai-log-item {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+
+  .ai-log-item:last-child { margin-bottom: 0; }
+
+  .log-time {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .log-msg { line-height: 1.5; }
+  .log-msg .tag {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .tag.match { background: rgba(0,229,160,0.15); color: var(--accent); }
+  .tag.flag { background: rgba(255,75,75,0.15); color: var(--danger); }
+  .tag.warn { background: rgba(255,184,0,0.15); color: var(--amber); }
+  .tag.ai { background: rgba(0,144,255,0.15); color: var(--accent2); }
+
+  /* ─── PRICING ─── */
+  #pricing { text-align: center; }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 60px;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .price-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 28px;
+    text-align: left;
+    position: relative;
+    transition: all 0.3s;
+  }
+
+  .price-card.featured {
+    background: rgba(0,229,160,0.05);
+    border-color: rgba(0,229,160,0.35);
+    transform: scale(1.04);
+  }
+
+  .price-card:hover {
+    transform: scale(1.03);
+    border-color: rgba(0,229,160,0.25);
+  }
+
+  .price-card.featured:hover { transform: scale(1.06); }
+
+  .featured-badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: var(--midnight);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 16px;
+    border-radius: 100px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .plan-tier {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .plan-name { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+
+  .plan-price {
+    margin-bottom: 8px;
+  }
+
+  .price-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 48px;
+    line-height: 1;
+  }
+
+  .price-period {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .plan-desc {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 28px;
+    line-height: 1.6;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .plan-features { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+
+  .plan-feature {
+    display: flex;
+    gap: 10px;
+    font-size: 14px;
+    align-items: flex-start;
+  }
+
+  .feat-check { color: var(--accent); flex-shrink: 0; font-weight: 700; }
+  .feat-cross { color: var(--muted); flex-shrink: 0; }
+
+  .plan-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .plan-btn.primary {
+    background: var(--accent);
+    color: var(--midnight);
+  }
+
+  .plan-btn.primary:hover { background: #00c989; }
+
+  .plan-btn.outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+
+  .plan-btn.outline:hover { border-color: rgba(255,255,255,0.3); }
+
+  /* ─── GREEN FINANCE ─── */
+  #green {
+    background: linear-gradient(135deg, rgba(0,229,160,0.04) 0%, rgba(0,144,255,0.04) 100%);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .green-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    margin-top: 60px;
+  }
+
+  .green-card {
+    background: var(--card);
+    border: 1px solid rgba(0,229,160,0.2);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+
+  .green-card h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .green-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  .carbon-display {
+    text-align: center;
+    padding: 20px;
+    margin-top: 12px;
+  }
+
+  .carbon-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 52px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .carbon-label { font-size: 14px; color: var(--muted); margin-top: 6px; }
+
+  /* ─── CONTENT HUB ─── */
+  #content { max-width: 1200px; margin: 0 auto; }
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 60px;
+  }
+
+  .article-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .article-card:hover {
+    border-color: rgba(0,229,160,0.25);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+
+  .article-tag-bar {
+    background: rgba(0,229,160,0.08);
+    padding: 12px 24px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .article-body { padding: 24px; }
+
+  .article-body h3 {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  .article-body p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .article-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+
+  .article-meta span { color: var(--accent); font-weight: 600; }
+
+  /* ─── CTA ─── */
+  #cta {
+    text-align: center;
+    background: var(--navy);
+    border-top: 1px solid var(--border);
+  }
+
+  .cta-inner {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .cta-inner h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(32px, 4vw, 56px);
+    margin-bottom: 20px;
+    line-height: 1.1;
+  }
+
+  .cta-inner h2 em { color: var(--accent); font-style: italic; }
+
+  .cta-inner p {
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1.7;
+    margin-bottom: 40px;
+  }
+
+  .email-form {
+    display: flex;
+    gap: 12px;
+    max-width: 480px;
+    margin: 0 auto 24px;
+  }
+
+  .email-form input {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 14px 20px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .email-form input:focus { border-color: var(--accent); }
+
+  .email-form button {
+    background: var(--accent);
+    color: var(--midnight);
+    border: none;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+
+  .email-form button:hover { background: #00c989; }
+
+  .trust-logos {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-top: 60px;
+    flex-wrap: wrap;
+  }
+
+  .trust-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .trust-icon { font-size: 20px; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--midnight);
+    border-top: 1px solid var(--border);
+    padding: 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 60px;
+    margin-bottom: 60px;
+  }
+
+  .footer-brand p {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-top: 16px;
+    max-width: 280px;
+  }
+
+  .footer-col h5 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  .footer-col ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .footer-col ul a {
+    font-size: 14px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-col ul a:hover { color: var(--text); }
+
+  .footer-bottom {
+    border-top: 1px solid var(--border);
+    padding-top: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .footer-badges {
+    display: flex;
+    gap: 12px;
+  }
+
+  .footer-badge {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── SCROLL ANIMATIONS ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ─── TICKER ─── */
+  .ticker-wrap {
+    background: rgba(0,229,160,0.06);
+    border-top: 1px solid rgba(0,229,160,0.12);
+    border-bottom: 1px solid rgba(0,229,160,0.12);
+    padding: 12px 0;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+  }
+
+  .ticker {
+    display: flex;
+    animation: ticker 30s linear infinite;
+    width: max-content;
+  }
+
+  .ticker-item {
+    padding: 0 48px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    white-space: nowrap;
+  }
+
+  .ticker-sep { color: rgba(0,229,160,0.3); }
+
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    nav { padding: 16px 24px; }
+    .hero-visual { display: none; }
+    section { padding: 80px 24px; }
+    #tools { padding: 80px 24px; }
+    .pain-grid, .ai-grid, .green-grid { grid-template-columns: 1fr; gap: 40px; }
+    .tools-grid, .pricing-grid, .content-grid { grid-template-columns: 1fr 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .hero-stats { gap: 32px; flex-wrap: wrap; }
+    footer { padding: 40px 24px; }
+    .price-card.featured { transform: scale(1); }
+  }
+
+  @media (max-width: 640px) {
+    .tools-grid, .pricing-grid, .content-grid { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr; }
+    nav { padding: 14px 20px; }
+    .nav-links { display: none; }
+    #hero { padding: 100px 24px 60px; }
+    h1 { font-size: 38px; }
+    .hero-stats { flex-direction: column; gap: 24px; }
+    .email-form { flex-direction: column; }
+    .tools-header { flex-direction: column; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">
+    <div class="logo-icon">🛡</div>
+    FinShield <span>AI</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#tools">Tools</a></li>
+    <li><a href="#ai">Platform</a></li>
+    <li><a href="#green">Green Finance</a></li>
+    <li><a href="#content">Insights</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#cta" class="nav-cta">Start Free Trial</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="badge-dot"></div>
+      GST &amp; TDS Reconciliation · Powered by AI
+    </div>
+
+    <h1>Stop Losing Money to <em>Compliance Errors</em></h1>
+
+    <p class="hero-desc">
+      FinShield AI automates GST/TDS reconciliation for Infrastructure and Renewable Energy companies. Recover unclaimed ITC, detect vendor mismatches, and predict cash-flow gaps — before they cost you crores.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#tools" class="btn-primary">
+        ⚡ Try Free Tools
+      </a>
+      <a href="#ai" class="btn-ghost">
+        See Platform Demo →
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-value">₹2.4Cr</div>
+        <div class="stat-label">Avg ITC recovered per client</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">98.7%</div>
+        <div class="stat-label">Reconciliation accuracy</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">4 min</div>
+        <div class="stat-label">Time to first insight</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Preview -->
+  <div class="hero-visual">
+    <div class="dashboard-card">
+      <div class="dashboard-header">
+        <div class="dash-title">Live Reconciliation · Oct 2026</div>
+        <div class="alert-badge">3 Mismatches</div>
+      </div>
+      <div class="reconcile-row">
+        <span class="vendor-name"><span class="status-dot match"></span>Tata Projects Ltd</span>
+        <span class="vendor-amount">₹18,42,000</span>
+        <span style="font-size:12px;color:var(--accent);font-weight:600">MATCHED</span>
+      </div>
+      <div class="reconcile-row">
+        <span class="vendor-name"><span class="status-dot mismatch"></span>Adani Green Infra</span>
+        <span class="vendor-amount">₹54,80,000</span>
+        <span style="font-size:12px;color:var(--danger);font-weight:600">MISMATCH</span>
+      </div>
+      <div class="reconcile-row">
+        <span class="vendor-name"><span class="status-dot pending"></span>L&T Hydropower</span>
+        <span class="vendor-amount">₹31,20,000</span>
+        <span style="font-size:12px;color:var(--amber);font-weight:600">PENDING</span>
+      </div>
+      <div class="reconcile-row">
+        <span class="vendor-name"><span class="status-dot match"></span>NTPC Solar Ltd</span>
+        <span class="vendor-amount">₹9,60,000</span>
+        <span style="font-size:12px;color:var(--accent);font-weight:600">MATCHED</span>
+      </div>
+      <div class="mini-chart">
+        <div class="bar" style="height:40%;background:var(--accent);opacity:0.3"></div>
+        <div class="bar" style="height:60%;background:var(--accent);opacity:0.4"></div>
+        <div class="bar" style="height:45%;background:var(--accent);opacity:0.3"></div>
+        <div class="bar" style="height:80%;background:var(--accent)"></div>
+        <div class="bar" style="height:65%;background:var(--accent);opacity:0.6"></div>
+        <div class="bar" style="height:90%;background:var(--accent)"></div>
+        <div class="bar" style="height:70%;background:var(--accent);opacity:0.7"></div>
+      </div>
+    </div>
+    <div class="dashboard-card">
+      <div class="dashboard-header">
+        <div class="dash-title">AI Anomaly Detection</div>
+        <div class="alert-badge green">Active</div>
+      </div>
+      <div class="metric-row">
+        <div class="metric-box">
+          <div class="metric-num green">₹84L</div>
+          <div class="metric-sub">ITC Recoverable</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-num red">₹12L</div>
+          <div class="metric-sub">At Risk (TDS)</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-num" style="color:var(--amber)">17</div>
+          <div class="metric-sub">Vendors Flagged</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <div class="ticker-item">🟢 GST ITC Mismatch: Vendor XYZ flagged ₹4.2L discrepancy <span class="ticker-sep">•</span></div>
+    <div class="ticker-item">⚡ AI Reconciliation complete: 2,840 invoices processed in 38 sec <span class="ticker-sep">•</span></div>
+    <div class="ticker-item">🔴 TDS short-deduction alert: Contractor ABC — ₹86K at risk <span class="ticker-sep">•</span></div>
+    <div class="ticker-item">🌱 Carbon Credit Estimated: Solar Farm Project — 420 tCO₂ ≈ ₹18.9L <span class="ticker-sep">•</span></div>
+    <div class="ticker-item">📊 Cash-flow gap predicted: 23-day delay in Q4 payment cycle <span class="ticker-sep">•</span></div>
+    <div class="ticker-item">✅ GSTR-2B auto-matched: 1,240/1,260 invoices reconciled <span class="ticker-sep">•</span></div>
+    <div class="ticker-item">🟢 GST ITC Mismatch: Vendor XYZ flagged ₹4.2L discrepancy <span class="ticker-sep">•</span></div>
+    <div class="ticker-item">⚡ AI Reconciliation complete: 2,840 invoices processed in 38 sec <span class="ticker-sep">•</span></div>
+    <div class="ticker-item">🔴 TDS short-deduction alert: Contractor ABC — ₹86K at risk <span class="ticker-sep">•</span></div>
+    <div class="ticker-item">🌱 Carbon Credit Estimated: Solar Farm Project — 420 tCO₂ ≈ ₹18.9L <span class="ticker-sep">•</span></div>
+    <div class="ticker-item">📊 Cash-flow gap predicted: 23-day delay in Q4 payment cycle <span class="ticker-sep">•</span></div>
+    <div class="ticker-item">✅ GSTR-2B auto-matched: 1,240/1,260 invoices reconciled <span class="ticker-sep">•</span></div>
+  </div>
+</div>
+
+<!-- PAIN POINT -->
+<section id="pain">
+  <div class="section-label">The Problem</div>
+  <h2 class="section-title">Manual Spreadsheets Are Costing You <em style="color:var(--danger)">Crores</em></h2>
+  <p class="section-desc">In India's 2026 real-time reporting landscape, companies in infrastructure and renewable energy are losing massive amounts to compliance errors that could have been prevented.</p>
+
+  <div class="pain-grid">
+    <div class="pain-items reveal">
+      <div class="pain-item">
+        <div class="pain-icon red">🚨</div>
+        <div class="pain-text">
+          <h4>GST ITC Leakage</h4>
+          <p>Vendor GSTIN mismatches and late GSTR-1 filings mean crores in Input Tax Credit goes unclaimed every quarter.</p>
+        </div>
+      </div>
+      <div class="pain-item">
+        <div class="pain-icon amber">⚠️</div>
+        <div class="pain-text">
+          <h4>TDS Non-Compliance Risk</h4>
+          <p>Project delays and contractor rate changes cause TDS short-deductions, triggering penalties from the Income Tax Department.</p>
+        </div>
+      </div>
+      <div class="pain-item">
+        <div class="pain-icon blue">📉</div>
+        <div class="pain-text">
+          <h4>Cash-Flow Blind Spots</h4>
+          <p>EPC and renewable energy projects routinely face unexpected payment delays that spreadsheets cannot predict in advance.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cost-display reveal">
+      <div class="cost-amount">₹50L</div>
+      <div class="cost-label">Average annual loss per mid-size EPC firm due to reconciliation errors</div>
+      <div class="cost-breakdown">
+        <div class="cost-line">
+          <span>Unclaimed ITC (vendor mismatch)</span>
+          <span>₹18–24L</span>
+        </div>
+        <div class="cost-line">
+          <span>TDS penalties &amp; interest</span>
+          <span>₹8–12L</span>
+        </div>
+        <div class="cost-line">
+          <span>Cash-flow gap financing cost</span>
+          <span>₹10–16L</span>
+        </div>
+        <div class="cost-line">
+          <span>Manual audit &amp; compliance cost</span>
+          <span>₹6–10L</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FREE TOOLS -->
+<section id="tools">
+  <div class="tools-header reveal">
+    <div>
+      <div class="section-label">Free Entry-Point Tools</div>
+      <h2 class="section-title" style="font-size: clamp(28px, 3vw, 42px); margin-bottom: 0;">Instant Value. No Login Required.</h2>
+    </div>
+    <p style="max-width:320px;font-size:14px;color:var(--muted);line-height:1.6;text-align:right;">Professional-grade calculators built for finance teams in infrastructure &amp; renewable energy.</p>
+  </div>
+
+  <div class="tools-grid reveal">
+    <div class="tool-card" onclick="openModal('itc')">
+      <div class="tool-icon">🔍</div>
+      <h3>GST ITC Mismatch Estimator</h3>
+      <p>Calculate your potential Input Tax Credit leakage from vendor mismatches and late filings. Get a recovery estimate in seconds.</p>
+      <a class="tool-link">Launch Calculator →</a>
+    </div>
+    <div class="tool-card" onclick="openModal('tds')">
+      <div class="tool-icon">✅</div>
+      <h3>Vendor TDS Compliance Checker</h3>
+      <p>Verify TDS applicability, rate, and liability for contractors based on payment type, PAN status, and threshold limits.</p>
+      <a class="tool-link">Launch Calculator →</a>
+    </div>
+    <div class="tool-card" onclick="openModal('irr')">
+      <div class="tool-icon">☀️</div>
+      <h3>Solar Project IRR Calculator</h3>
+      <p>Compute Internal Rate of Return for solar installations with built-in sensitivity analysis for tariff, CUF, and capex variables.</p>
+      <a class="tool-link">Launch Calculator →</a>
+    </div>
+    <div class="tool-card" onclick="openModal('cashflow')">
+      <div class="tool-icon">📊</div>
+      <h3>Project Cash-Flow Gap Predictor</h3>
+      <p>Estimate cash-flow shortfalls from project delays using milestone payment schedules and working capital cycles.</p>
+      <a class="tool-link">Launch Calculator →</a>
+    </div>
+    <div class="tool-card" onclick="openModal('carbon')">
+      <div class="tool-icon">🌱</div>
+      <h3>Carbon Credit Value Estimator</h3>
+      <p>Calculate the financial equivalent of carbon savings for your renewable energy project and estimate tradeable credit potential.</p>
+      <a class="tool-link">Launch Calculator →</a>
+    </div>
+    <div class="tool-card" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;border-style:dashed;cursor:default;">
+      <div style="font-size:36px;opacity:0.3">+</div>
+      <p style="text-align:center;opacity:0.5;font-size:14px;margin:0">More tools launching Q1 2027</p>
+    </div>
+  </div>
+</section>
+
+<!-- AI PLATFORM -->
+<section id="ai">
+  <div class="section-label">The Core Platform</div>
+  <h2 class="section-title">Intelligence, Not Just Data</h2>
+  <p class="section-desc">FinShield AI doesn't just surface numbers — it understands your financial operations and acts as an autonomous compliance co-pilot.</p>
+
+  <div class="ai-grid">
+    <div class="ai-features reveal">
+      <div class="ai-feature">
+        <div class="ai-num">01</div>
+        <div>
+          <h4>Smart Data Ingestion</h4>
+          <p>Upload bank statements, Tally exports, ERP CSVs, or connect via API. Our engine normalizes and maps your data automatically within seconds.</p>
+        </div>
+      </div>
+      <div class="ai-feature">
+        <div class="ai-num">02</div>
+        <div>
+          <h4>Fuzzy-Match Reconciliation</h4>
+          <p>Our AI compares purchase registers against GSTR-2B using fuzzy matching — catching mismatches even when vendor names and invoice numbers differ slightly.</p>
+        </div>
+      </div>
+      <div class="ai-feature">
+        <div class="ai-num">03</div>
+        <div>
+          <h4>Anomaly Detection Engine</h4>
+          <p>Flags unusual vendor rate hikes, potential double payments, and suspicious transaction patterns before they escalate into compliance risks.</p>
+        </div>
+      </div>
+      <div class="ai-feature">
+        <div class="ai-num">04</div>
+        <div>
+          <h4>Predictive Cash-Flow AI</h4>
+          <p>Analyzes milestone payment schedules and working capital cycles to predict cash-flow gaps 30–90 days in advance so you can act early.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-demo reveal">
+      <div class="ai-demo-header">
+        🤖 &nbsp; AI Reconciliation Engine — Live Log
+      </div>
+      <div class="ai-demo-body">
+        <div class="ai-log-item">
+          <span class="log-time">09:02:14</span>
+          <span class="log-msg"><span class="tag ai">AI</span>Ingested 2,840 purchase invoices from Tally export</span>
+        </div>
+        <div class="ai-log-item">
+          <span class="log-time">09:02:17</span>
+          <span class="log-msg"><span class="tag match">Match</span>GSTR-2B auto-matched: 2,617 invoices (92.1%)</span>
+        </div>
+        <div class="ai-log-item">
+          <span class="log-time">09:02:18</span>
+          <span class="log-msg"><span class="tag flag">Flag</span>Vendor "Adani Green Infra Pvt" — GSTIN mismatch. Invoice 2024-INV-8821. ITC at risk: ₹54.8L</span>
+        </div>
+        <div class="ai-log-item">
+          <span class="log-time">09:02:19</span>
+          <span class="log-msg"><span class="tag warn">Warn</span>Vendor "L&T Hydropower" — Rate hike detected (+18.4% vs last quarter). Flagged for review.</span>
+        </div>
+        <div class="ai-log-item">
+          <span class="log-time">09:02:21</span>
+          <span class="log-msg"><span class="tag ai">AI</span>Cash-flow gap predicted: ₹2.1Cr shortfall in 47 days (delayed milestone from Project Aruna)</span>
+        </div>
+        <div class="ai-log-item">
+          <span class="log-time">09:02:22</span>
+          <span class="log-msg"><span class="tag match">Complete</span>Reconciliation report generated. Actionable alerts sent to CFO dashboard.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GREEN FINANCE -->
+<section id="green">
+  <div class="section-label">🌱 The Golden Feature</div>
+  <h2 class="section-title">Green-Finance Connector</h2>
+  <p class="section-desc">As India accelerates toward Net Zero by 2070, companies can monetize their renewable energy projects through carbon credits. FinShield AI calculates your carbon credit potential — and translates it into rupee value.</p>
+
+  <div class="green-grid">
+    <div class="reveal">
+      <div class="green-card">
+        <h4>🌞 Solar Carbon Credit Estimator</h4>
+        <p>Input your project capacity and CUF. We calculate annual CO₂ avoided, estimate VCS/Gold Standard credits, and give a real-time market value in INR.</p>
+        <div class="carbon-display">
+          <div class="carbon-num">₹18.9L</div>
+          <div class="carbon-label">Est. annual carbon credit value · 10 MW Solar Plant</div>
+        </div>
+      </div>
+      <div class="green-card">
+        <h4>💨 Wind &amp; Hydro Emission Factor</h4>
+        <p>Connects to CERC-approved grid emission factors to compute project-specific emission reductions using the most current baseline data.</p>
+      </div>
+      <div class="green-card">
+        <h4>📋 DPDP-Compliant Reporting</h4>
+        <p>ESG reports aligned with SEBI's Business Responsibility &amp; Sustainability Reporting (BRSR) framework — ready for investor disclosure.</p>
+      </div>
+    </div>
+
+    <div class="reveal" style="text-align:center;">
+      <div style="background:var(--card);border:1px solid rgba(0,229,160,0.2);border-radius:20px;padding:44px 36px;">
+        <div style="font-size:64px;margin-bottom:24px;">🌍</div>
+        <h3 style="font-family:'DM Serif Display',serif;font-size:28px;margin-bottom:12px;line-height:1.2;">Turn Green Into <em style="color:var(--accent)">Gold</em></h3>
+        <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:32px;">India's carbon market is projected to reach <strong style="color:var(--text)">$30 billion by 2030</strong>. FinShield AI positions you to capture this opportunity — automatically.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px;">
+          <div style="background:rgba(0,229,160,0.08);border-radius:12px;padding:20px;">
+            <div style="font-family:'DM Serif Display',serif;font-size:32px;color:var(--accent)">420</div>
+            <div style="font-size:12px;color:var(--muted)">tCO₂/year offset</div>
+          </div>
+          <div style="background:rgba(0,229,160,0.08);border-radius:12px;padding:20px;">
+            <div style="font-family:'DM Serif Display',serif;font-size:32px;color:var(--accent)">₹45/t</div>
+            <div style="font-size:12px;color:var(--muted)">VCS credit rate</div>
+          </div>
+        </div>
+        <button class="btn-primary" style="width:100%;justify-content:center;" onclick="openModal('carbon')">
+          🌱 Calculate My Carbon Value
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTENT HUB -->
+<section id="content">
+  <div class="section-label">Intelligence Hub</div>
+  <h2 class="section-title">Case Studies &amp; Insights</h2>
+  <p class="section-desc">Real-world financial analysis for CFOs and project accountants in India's infrastructure sector.</p>
+
+  <div class="content-grid reveal">
+    <div class="article-card">
+      <div class="article-tag-bar">Case Study · TDS Compliance</div>
+      <div class="article-body">
+        <h3>How a 2% TDS Reconciliation Error Cost an EPC Firm ₹50 Lakhs</h3>
+        <p>A Hyderabad-based EPC contractor with ₹400Cr annual turnover discovered that minor rate-classification errors across 340 vendor invoices had compounded into a ₹50L liability over 18 months.</p>
+        <div class="article-meta">
+          <span>12 min read</span>
+          <span>CFO Strategy</span>
+        </div>
+      </div>
+    </div>
+    <div class="article-card">
+      <div class="article-tag-bar">Analysis · GST & ITC</div>
+      <div class="article-body">
+        <h3>GSTR-2B vs Purchase Register: The ₹2Cr ITC Gap No One Is Talking About</h3>
+        <p>In our audit of 28 renewable energy companies, 22 had significant ITC mismatches — averaging ₹2.1Cr each — traced to vendor GSTIN filing delays and classification errors.</p>
+        <div class="article-meta">
+          <span>8 min read</span>
+          <span>Tax Strategy</span>
+        </div>
+      </div>
+    </div>
+    <div class="article-card">
+      <div class="article-tag-bar">Research · Green Finance</div>
+      <div class="article-body">
+        <h3>India's Carbon Credit Opportunity: Why Solar Developers Are Leaving ₹18L/Year on the Table</h3>
+        <p>Most solar developers register under REC mechanisms but overlook voluntary carbon markets. A 10 MW plant can generate ₹15–22L annually from VCS credits alone — if properly structured.</p>
+        <div class="article-meta">
+          <span>10 min read</span>
+          <span>Green Finance</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-label">Simple Pricing</div>
+  <h2 class="section-title">Grow With Your Operations</h2>
+  <p class="section-desc" style="margin:0 auto 0;">No hidden fees. Cancel anytime. Every plan includes AES-256 encryption and DPDP compliance.</p>
+
+  <div class="pricing-grid reveal">
+    <div class="price-card">
+      <div class="plan-tier">Starter</div>
+      <div class="plan-name">Free</div>
+      <div class="plan-price">
+        <span class="price-num">₹0</span>
+        <span class="price-period"> / forever</span>
+      </div>
+      <p class="plan-desc">Perfect for finance teams exploring AI-powered compliance tools for the first time.</p>
+      <div class="plan-features">
+        <div class="plan-feature"><span class="feat-check">✓</span> All 5 free calculators</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> 50 invoice reconciliations/month</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> Basic GST mismatch detection</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> Weekly compliance newsletter</div>
+        <div class="plan-feature"><span class="feat-cross">✗</span> <span style="color:var(--muted)">AI anomaly detection</span></div>
+        <div class="plan-feature"><span class="feat-cross">✗</span> <span style="color:var(--muted)">Cash-flow predictions</span></div>
+      </div>
+      <button class="plan-btn outline" onclick="openModal('itc')">Get Started Free</button>
+    </div>
+
+    <div class="price-card featured">
+      <div class="featured-badge">MOST POPULAR</div>
+      <div class="plan-tier">Professional</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">
+        <span class="price-num">₹4,999</span>
+        <span class="price-period"> / month</span>
+      </div>
+      <p class="plan-desc">For growing infrastructure and renewable energy companies with active reconciliation needs.</p>
+      <div class="plan-features">
+        <div class="plan-feature"><span class="feat-check">✓</span> Unlimited reconciliations</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> AI anomaly detection</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> Cash-flow gap predictor</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> Carbon credit estimator</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> Tally/ERP CSV import</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> AI-generated health reports</div>
+      </div>
+      <button class="plan-btn primary">Start 14-Day Free Trial</button>
+    </div>
+
+    <div class="price-card">
+      <div class="plan-tier">Enterprise</div>
+      <div class="plan-name">Scale</div>
+      <div class="plan-price">
+        <span class="price-num">Custom</span>
+      </div>
+      <p class="plan-desc">For large EPC firms and infrastructure conglomerates needing custom integrations and white-labeling.</p>
+      <div class="plan-features">
+        <div class="plan-feature"><span class="feat-check">✓</span> Everything in Pro</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> Custom API integration</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> SAP / Oracle ERP connectors</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> White-label dashboard</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> Dedicated CS manager</div>
+        <div class="plan-feature"><span class="feat-check">✓</span> SLA-backed uptime guarantee</div>
+      </div>
+      <button class="plan-btn outline">Talk to Sales</button>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="cta-inner reveal">
+    <h2>Start Recovering Your <em>Compliance Losses</em> Today</h2>
+    <p>Join 200+ project accountants and CFOs who have already stopped leaving crores on the table. Get your first reconciliation insight in under 4 minutes.</p>
+    <div class="email-form">
+      <input type="email" placeholder="Enter your work email" id="emailInput">
+      <button onclick="handleEmailSubmit()">Get Free Access →</button>
+    </div>
+    <p id="emailSuccess" style="display:none;color:var(--accent);font-size:14px;font-weight:600;margin-top:8px;">✅ You're on the list! Check your inbox.</p>
+    <p style="font-size:13px;color:var(--muted);">No credit card required · DPDP compliant · Cancel anytime</p>
+
+    <div class="trust-logos">
+      <div class="trust-item"><span class="trust-icon">🔒</span> AES-256 Encrypted</div>
+      <div class="trust-item"><span class="trust-icon">🛡</span> GDPR / DPDP Compliant</div>
+      <div class="trust-item"><span class="trust-icon">⚡</span> 99.9% Uptime SLA</div>
+      <div class="trust-item"><span class="trust-icon">🇮🇳</span> India-Hosted Servers</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="logo">
+        <div class="logo-icon">🛡</div>
+        FinShield <span>AI</span>
+      </a>
+      <p>Automated GST/TDS reconciliation and compliance intelligence for India's infrastructure and renewable energy sector.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Platform</h5>
+      <ul>
+        <li><a href="#tools">Free Tools</a></li>
+        <li><a href="#ai">AI Reconciliation</a></li>
+        <li><a href="#green">Green Finance</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Insights</h5>
+      <ul>
+        <li><a href="#">GST Case Studies</a></li>
+        <li><a href="#">TDS Compliance</a></li>
+        <li><a href="#">Carbon Markets</a></li>
+        <li><a href="#">EPC Finance</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <ul>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Security</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 FinShield AI Technologies Pvt. Ltd. · All rights reserved.</span>
+    <div class="footer-badges">
+      <span class="footer-badge">SSL</span>
+      <span class="footer-badge">AES-256</span>
+      <span class="footer-badge">DPDP</span>
+      <span class="footer-badge">ISO 27001</span>
+    </div>
+  </div>
+</footer>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOnOverlay(event)">
+
+  <!-- ITC Calculator -->
+  <div class="modal" id="modal-itc" style="display:none">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>GST ITC Mismatch Estimator</h2>
+    <p class="modal-desc">Estimate your unclaimed Input Tax Credit due to vendor GSTIN mismatches and late GSTR-1 filings.</p>
+    <div class="form-group">
+      <label>Annual Purchase Value (₹ Lakhs)</label>
+      <input type="number" id="itc-purchase" placeholder="e.g. 500" min="0">
+    </div>
+    <div class="form-group">
+      <label>Number of Active Vendors</label>
+      <input type="number" id="itc-vendors" placeholder="e.g. 80" min="0">
+    </div>
+    <div class="form-group">
+      <label>% Vendors with Late GSTR-1 Filing</label>
+      <input type="number" id="itc-late" placeholder="e.g. 15" min="0" max="100">
+    </div>
+    <div class="form-group">
+      <label>Average GST Rate on Purchases (%)</label>
+      <select id="itc-rate">
+        <option value="5">5%</option>
+        <option value="12">12%</option>
+        <option value="18" selected>18%</option>
+        <option value="28">28%</option>
+      </select>
+    </div>
+    <button class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;" onclick="calcITC()">Calculate ITC Leakage →</button>
+    <div class="calc-result" id="itc-result">
+      <div class="result-rows">
+        <div class="result-row"><span class="label">Total GST Paid</span><span class="value" id="r-itc-total"></span></div>
+        <div class="result-row"><span class="label">Est. ITC at Risk (Late Vendors)</span><span class="value danger" id="r-itc-risk"></span></div>
+        <div class="result-row"><span class="label">Recoverable with FinShield AI</span><span class="value accent" id="r-itc-recover"></span></div>
+        <div class="result-row"><span class="label">Annual ROI on Pro Plan</span><span class="value accent" id="r-itc-roi"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TDS Calculator -->
+  <div class="modal" id="modal-tds" style="display:none">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>Vendor TDS Compliance Checker</h2>
+    <p class="modal-desc">Verify TDS deductibility and calculate liability for contractor payments under Section 194C, 194J, and 194I.</p>
+    <div class="form-group">
+      <label>Payment Type</label>
+      <select id="tds-type">
+        <option value="194C">194C — Contractor Payment</option>
+        <option value="194J">194J — Professional/Technical Services</option>
+        <option value="194I">194I — Rent</option>
+        <option value="194Q">194Q — Purchase of Goods</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Payment Amount (₹)</label>
+      <input type="number" id="tds-amount" placeholder="e.g. 1500000" min="0">
+    </div>
+    <div class="form-group">
+      <label>Vendor PAN Status</label>
+      <select id="tds-pan">
+        <option value="valid">Valid PAN Provided</option>
+        <option value="invalid">No PAN / Invalid PAN</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Vendor Type</label>
+      <select id="tds-entity">
+        <option value="company">Company / LLP</option>
+        <option value="individual">Individual / HUF</option>
+      </select>
+    </div>
+    <button class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;" onclick="calcTDS()">Check TDS Compliance →</button>
+    <div class="calc-result" id="tds-result">
+      <div class="result-rows">
+        <div class="result-row"><span class="label">Applicable Section</span><span class="value" id="r-tds-section"></span></div>
+        <div class="result-row"><span class="label">TDS Rate</span><span class="value amber" id="r-tds-rate"></span></div>
+        <div class="result-row"><span class="label">TDS Amount to Deduct</span><span class="value danger" id="r-tds-amount"></span></div>
+        <div class="result-row"><span class="label">Net Payable to Vendor</span><span class="value accent" id="r-tds-net"></span></div>
+        <div class="result-row"><span class="label">TDS Deposit Due</span><span class="value" id="r-tds-due"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IRR Calculator -->
+  <div class="modal" id="modal-irr" style="display:none">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>Solar Project IRR Calculator</h2>
+    <p class="modal-desc">Calculate the Internal Rate of Return for your solar energy project with tariff and capacity factor analysis.</p>
+    <div class="form-group">
+      <label>Project Capacity (MW)</label>
+      <input type="number" id="irr-mw" placeholder="e.g. 10" min="0">
+    </div>
+    <div class="form-group">
+      <label>Capex per MW (₹ Crore)</label>
+      <input type="number" id="irr-capex" placeholder="e.g. 4.5" min="0" step="0.1">
+    </div>
+    <div class="form-group">
+      <label>PPA Tariff (₹ / kWh)</label>
+      <input type="number" id="irr-tariff" placeholder="e.g. 2.80" min="0" step="0.01">
+    </div>
+    <div class="form-group">
+      <label>Plant Load Factor / CUF (%)</label>
+      <input type="number" id="irr-cuf" placeholder="e.g. 22" min="0" max="100">
+    </div>
+    <button class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;" onclick="calcIRR()">Calculate Project IRR →</button>
+    <div class="calc-result" id="irr-result">
+      <div class="result-rows">
+        <div class="result-row"><span class="label">Total Project Cost</span><span class="value" id="r-irr-cost"></span></div>
+        <div class="result-row"><span class="label">Annual Energy Generation</span><span class="value" id="r-irr-energy"></span></div>
+        <div class="result-row"><span class="label">Annual Revenue</span><span class="value" id="r-irr-rev"></span></div>
+        <div class="result-row"><span class="label">Simple Payback Period</span><span class="value amber" id="r-irr-payback"></span></div>
+        <div class="result-row"><span class="label">Estimated Project IRR</span><span class="value accent" id="r-irr-irr"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cash Flow Calculator -->
+  <div class="modal" id="modal-cashflow" style="display:none">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>Project Cash-Flow Gap Predictor</h2>
+    <p class="modal-desc">Estimate potential working capital shortfalls from milestone payment delays in your infrastructure project.</p>
+    <div class="form-group">
+      <label>Total Project Value (₹ Crore)</label>
+      <input type="number" id="cf-value" placeholder="e.g. 200" min="0">
+    </div>
+    <div class="form-group">
+      <label>Current Project Completion (%)</label>
+      <input type="number" id="cf-complete" placeholder="e.g. 60" min="0" max="100">
+    </div>
+    <div class="form-group">
+      <label>Milestone Payment Delay (Days)</label>
+      <input type="number" id="cf-delay" placeholder="e.g. 45" min="0">
+    </div>
+    <div class="form-group">
+      <label>Monthly Fixed Cost Burn (₹ Lakhs)</label>
+      <input type="number" id="cf-burn" placeholder="e.g. 80" min="0">
+    </div>
+    <button class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;" onclick="calcCashflow()">Predict Cash-Flow Gap →</button>
+    <div class="calc-result" id="cashflow-result">
+      <div class="result-rows">
+        <div class="result-row"><span class="label">Milestone Amount Due</span><span class="value" id="r-cf-milestone"></span></div>
+        <div class="result-row"><span class="label">Burn During Delay Period</span><span class="value danger" id="r-cf-burn"></span></div>
+        <div class="result-row"><span class="label">Estimated Financing Cost (12%)</span><span class="value danger" id="r-cf-finance"></span></div>
+        <div class="result-row"><span class="label">Total Cash-Flow Gap</span><span class="value danger" id="r-cf-gap"></span></div>
+        <div class="result-row"><span class="label">Recommendation</span><span class="value amber" id="r-cf-rec"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carbon Calculator -->
+  <div class="modal" id="modal-carbon" style="display:none">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>🌱 Carbon Credit Value Estimator</h2>
+    <p class="modal-desc">Calculate the carbon credit potential and financial value of your renewable energy project under VCS or Gold Standard.</p>
+    <div class="form-group">
+      <label>Project Type</label>
+      <select id="cc-type">
+        <option value="solar">Solar PV</option>
+        <option value="wind">Wind Energy</option>
+        <option value="hydro">Small Hydro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Installed Capacity (MW)</label>
+      <input type="number" id="cc-mw" placeholder="e.g. 10" min="0">
+    </div>
+    <div class="form-group">
+      <label>Plant Load Factor / CUF (%)</label>
+      <input type="number" id="cc-cuf" placeholder="e.g. 22" min="0" max="100">
+    </div>
+    <div class="form-group">
+      <label>Credit Standard</label>
+      <select id="cc-standard">
+        <option value="vcs">VCS (Verra)</option>
+        <option value="gold">Gold Standard</option>
+        <option value="rec">REC (India)</option>
+      </select>
+    </div>
+    <button class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;" onclick="calcCarbon()">Calculate Carbon Value →</button>
+    <div class="calc-result" id="carbon-result">
+      <div class="result-rows">
+        <div class="result-row"><span class="label">Annual Energy Generated</span><span class="value" id="r-cc-energy"></span></div>
+        <div class="result-row"><span class="label">CO₂ Avoided (Grid Factor 0.82)</span><span class="value" id="r-cc-co2"></span></div>
+        <div class="result-row"><span class="label">Carbon Credits Generated</span><span class="value amber" id="r-cc-credits"></span></div>
+        <div class="result-row"><span class="label">Credit Price (Market Rate)</span><span class="value" id="r-cc-price"></span></div>
+        <div class="result-row"><span class="label">Annual Carbon Revenue</span><span class="value accent" id="r-cc-revenue"></span></div>
+        <div class="result-row"><span class="label">25-Year Project Value</span><span class="value accent" id="r-cc-25yr"></span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── SCROLL REVEAL ───
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+revealEls.forEach(el => observer.observe(el));
+
+// ─── MODAL SYSTEM ───
+function openModal(type) {
+  document.getElementById('modal-overlay').classList.add('active');
+  document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+  document.getElementById('modal-' + type).style.display = 'block';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('active');
+  document.querySelectorAll('.calc-result').forEach(r => r.classList.remove('show'));
+}
+
+function closeModalOnOverlay(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function fmt(n) {
+  if (n >= 10000000) return '₹' + (n/10000000).toFixed(2) + 'Cr';
+  if (n >= 100000) return '₹' + (n/100000).toFixed(2) + 'L';
+  return '₹' + n.toLocaleString('en-IN');
+}
+
+// ─── ITC CALCULATOR ───
+function calcITC() {
+  const purchase = parseFloat(document.getElementById('itc-purchase').value) || 0;
+  const rate = parseFloat(document.getElementById('itc-rate').value) / 100;
+  const late = parseFloat(document.getElementById('itc-late').value) / 100;
+
+  const totalGST = purchase * 100000 * rate;
+  const atRisk = totalGST * late * 0.85;
+  const recoverable = atRisk * 0.78;
+  const roi = ((recoverable / 59988) * 100).toFixed(0);
+
+  document.getElementById('r-itc-total').textContent = fmt(totalGST);
+  document.getElementById('r-itc-risk').textContent = fmt(atRisk);
+  document.getElementById('r-itc-recover').textContent = fmt(recoverable);
+  document.getElementById('r-itc-roi').textContent = roi + 'x on Pro Plan';
+  document.getElementById('itc-result').classList.add('show');
+}
+
+// ─── TDS CALCULATOR ───
+function calcTDS() {
+  const type = document.getElementById('tds-type').value;
+  const amount = parseFloat(document.getElementById('tds-amount').value) || 0;
+  const pan = document.getElementById('tds-pan').value;
+  const entity = document.getElementById('tds-entity').value;
+
+  const rates = {
+    '194C': { company: 0.02, individual: 0.01 },
+    '194J': { company: 0.10, individual: 0.10 },
+    '194I': { company: 0.10, individual: 0.10 },
+    '194Q': { company: 0.001, individual: 0.001 },
+  };
+
+  let rate = rates[type][entity];
+  if (pan === 'invalid') rate = 0.20;
+
+  const tdsAmt = amount * rate;
+  const net = amount - tdsAmt;
+  const now = new Date();
+  const due = new Date(now.getFullYear(), now.getMonth() + 1, 7);
+
+  document.getElementById('r-tds-section').textContent = type;
+  document.getElementById('r-tds-rate').textContent = (rate * 100).toFixed(1) + '%' + (pan === 'invalid' ? ' (No PAN penalty)' : '');
+  document.getElementById('r-tds-amount').textContent = fmt(tdsAmt);
+  document.getElementById('r-tds-net').textContent = fmt(net);
+  document.getElementById('r-tds-due').textContent = '7th ' + due.toLocaleString('default', { month: 'long', year: 'numeric' });
+  document.getElementById('tds-result').classList.add('show');
+}
+
+// ─── IRR CALCULATOR ───
+function calcIRR() {
+  const mw = parseFloat(document.getElementById('irr-mw').value) || 0;
+  const capex = parseFloat(document.getElementById('irr-capex').value) || 0;
+  const tariff = parseFloat(document.getElementById('irr-tariff').value) || 0;
+  const cuf = parseFloat(document.getElementById('irr-cuf').value) / 100;
+
+  const totalCost = mw * capex; // Crore
+  const annualUnits = mw * 1000 * cuf * 8760; // kWh
+  const annualRev = annualUnits * tariff / 10000000; // Crore
+  const opex = totalCost * 0.015;
+  const netRev = annualRev - opex;
+  const payback = totalCost / netRev;
+
+  // Simplified IRR estimate
+  const irrEstimate = (1 / payback) * 100 * 1.35;
+
+  document.getElementById('r-irr-cost').textContent = '₹' + totalCost.toFixed(2) + ' Cr';
+  document.getElementById('r-irr-energy').textContent = (annualUnits / 1000000).toFixed(2) + ' MU/year';
+  document.getElementById('r-irr-rev').textContent = '₹' + annualRev.toFixed(2) + ' Cr/year';
+  document.getElementById('r-irr-payback').textContent = payback.toFixed(1) + ' years';
+  document.getElementById('r-irr-irr').textContent = irrEstimate.toFixed(1) + '% p.a.';
+  document.getElementById('irr-result').classList.add('show');
+}
+
+// ─── CASH FLOW CALCULATOR ───
+function calcCashflow() {
+  const value = parseFloat(document.getElementById('cf-value').value) || 0;
+  const complete = parseFloat(document.getElementById('cf-complete').value) / 100;
+  const delay = parseFloat(document.getElementById('cf-delay').value) || 0;
+  const burn = parseFloat(document.getElementById('cf-burn').value) || 0;
+
+  const milestone = value * complete * 0.25 * 10000000;
+  const burnTotal = burn * 100000 * (delay / 30);
+  const financeCost = milestone * 0.12 * (delay / 365);
+  const gap = burnTotal + financeCost;
+  const rec = delay > 60 ? 'Seek bridge financing immediately' : delay > 30 ? 'Negotiate early release terms' : 'Monitor — low risk';
+
+  document.getElementById('r-cf-milestone').textContent = fmt(milestone);
+  document.getElementById('r-cf-burn').textContent = fmt(burnTotal);
+  document.getElementById('r-cf-finance').textContent = fmt(financeCost);
+  document.getElementById('r-cf-gap').textContent = fmt(gap);
+  document.getElementById('r-cf-rec').textContent = rec;
+  document.getElementById('cashflow-result').classList.add('show');
+}
+
+// ─── CARBON CALCULATOR ───
+function calcCarbon() {
+  const type = document.getElementById('cc-type').value;
+  const mw = parseFloat(document.getElementById('cc-mw').value) || 0;
+  const cuf = parseFloat(document.getElementById('cc-cuf').value) / 100;
+  const standard = document.getElementById('cc-standard').value;
+
+  const gridFactor = 0.82; // tCO2/MWh - Indian grid (CEA 2025)
+  const annualEnergy = mw * cuf * 8760; // MWh
+  const co2Avoided = annualEnergy * gridFactor; // tCO2
+
+  const prices = { vcs: 45, gold: 65, rec: 12 }; // ₹ per tCO2 equivalent
+  const creditPrice = prices[standard];
+  const annualRev = co2Avoided * creditPrice;
+  const rev25yr = annualRev * 25;
+
+  document.getElementById('r-cc-energy').textContent = (annualEnergy).toFixed(0) + ' MWh/year';
+  document.getElementById('r-cc-co2').textContent = co2Avoided.toFixed(0) + ' tCO₂/year';
+  document.getElementById('r-cc-credits').textContent = co2Avoided.toFixed(0) + ' credits/year';
+  document.getElementById('r-cc-price').textContent = '₹' + creditPrice + '/tCO₂ (' + standard.toUpperCase() + ')';
+  document.getElementById('r-cc-revenue').textContent = fmt(annualRev);
+  document.getElementById('r-cc-25yr').textContent = fmt(rev25yr);
+  document.getElementById('carbon-result').classList.add('show');
+}
+
+// ─── EMAIL SIGNUP ───
+function handleEmailSubmit() {
+  const email = document.getElementById('emailInput').value;
+  if (!email || !email.includes('@')) {
+    alert('Please enter a valid work email address.');
+    return;
+  }
+  document.getElementById('emailInput').value = '';
+  document.getElementById('emailSuccess').style.display = 'block';
+}
+</script>
+</body>
+</html>
